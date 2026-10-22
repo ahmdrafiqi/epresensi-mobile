@@ -1,11 +1,11 @@
-import 'package:e_presensimobile/core/theme/app_theme.dart';
-import 'package:e_presensimobile/screens/login_screen.dart';
-import 'package:e_presensimobile/screens/karyawan/dashboard_karyawan.dart';
-import 'package:e_presensimobile/screens/manager/dashboard_manager.dart';
-import 'package:e_presensimobile/screens/pengawas/dashboard_pengawas.dart';
+import 'package:e_presensimobile/app/theme/app_theme.dart';
+import 'package:e_presensimobile/features/auth/presentation/login_screen.dart';
+import 'package:e_presensimobile/features/dashboard/views/dashboard_karyawan.dart';
+import 'package:e_presensimobile/features/dashboard/views/dashboard_manager.dart';
+import 'package:e_presensimobile/features/dashboard/views/dashboard_pengawas.dart';
 import 'package:flutter/material.dart';
 
-import 'screens/splash_screen.dart';
+import 'features/auth/presentation/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
 
             return MaterialPageRoute(
               builder: (context) => DashboardKaryawan(
-                username: args['username'] as String,
+                email: args['email'] as String,
                 role: args['role'] as String,
               ),
             );
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
 
             return MaterialPageRoute(
               builder: (context) => DashboardManager(
-                username: args['username'] as String,
+                email: args['email'] as String,
                 role: args['role'] as String,
               ),
             );
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
 
             return MaterialPageRoute(
               builder: (context) => DashboardPengawas(
-                username: args['username'] as String,
+                email: args['email'] as String,
                 role: args['role'] as String,
               ),
             );

@@ -1,15 +1,18 @@
-import 'package:e_presensimobile/core/theme/app_colors.dart';
+import 'package:e_presensimobile/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:e_presensimobile/widgets/stat_card.dart';
-import 'package:e_presensimobile/widgets/quick_access_button.dart';
+import 'package:e_presensimobile/shared/widgets/stat_card.dart';
+import 'package:e_presensimobile/shared/widgets/quick_access_button.dart';
+import 'package:e_presensimobile/shared/widgets/section_title.dart';
+import 'package:e_presensimobile/shared/widgets/activity_card.dart';
+import 'package:e_presensimobile/shared/widgets/activity.dart';
 
 class DashboardKaryawan extends StatefulWidget {
-  final String username;
+  final String email;
   final String role;
 
   const DashboardKaryawan({
     super.key,
-    required this.username,
+    required this.email,
     required this.role,
   });
 
@@ -43,14 +46,14 @@ class _DashboardKaryawanState extends State<DashboardKaryawan> {
     ),
   ];
 
-  final List<_Activity> _activities = const [
-    _Activity(
+  final List<Activity> _activities = const [
+    Activity(
       title: 'Absensi Masuk Berhasil',
       date: '24 Mei 2024 • 07:15 WIB',
       location: 'Kantor Pusat (Head Office)',
       isLate: false,
     ),
-    _Activity(
+    Activity(
       title: 'Absensi Masuk Terlambat',
       date: '23 Mei 2024 • 08:05 WIB',
       location: 'Kantor Pusat (Head Office)',
@@ -96,7 +99,7 @@ class _DashboardKaryawanState extends State<DashboardKaryawan> {
                       ?.copyWith(color: AppColors.whitePrimary),
                 ),
                 Text(
-                  'Bapak ${widget.username}',
+                  'Bapak ${widget.email}',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: AppColors.whitePrimary,
                     fontWeight: FontWeight.bold,
@@ -189,7 +192,7 @@ class _DashboardKaryawanState extends State<DashboardKaryawan> {
           ),
 
           // 3. Akses Cepat
-          const SliverToBoxAdapter(child: _SectionTitle(title: 'Akses Cepat')),
+          const SliverToBoxAdapter(child: SectionTitle(title: 'Akses Cepat')),
 
           SliverToBoxAdapter(
             child: Padding(
@@ -230,7 +233,7 @@ class _DashboardKaryawanState extends State<DashboardKaryawan> {
 
           // 4. Aktivitas Terbaru
           SliverToBoxAdapter(
-            child: _SectionTitle(
+            child: SectionTitle(
               title: 'Aktivitas Terbaru',
               actionLabel: 'Lihat Semua',
               onActionTap: () {},
@@ -242,7 +245,7 @@ class _DashboardKaryawanState extends State<DashboardKaryawan> {
             sliver: SliverList.separated(
               itemCount: _activities.length,
               separatorBuilder: (_, _) => const SizedBox(height: 12),
-              itemBuilder: (context, index) => _ActivityCard(
+              itemBuilder: (context, index) => ActivityCard(
                 activity: _activities[index],
                 onDetailTap: () {},
               ),
@@ -270,166 +273,3 @@ class _DashboardKaryawanState extends State<DashboardKaryawan> {
 // ---------------------------------------------------------------------------
 // Widget pendukung (nanti bisa dipindah ke folder widgets/)
 // ---------------------------------------------------------------------------
-
-class _SectionTitle extends StatelessWidget {
-  final String title;
-  final String? actionLabel;
-  final VoidCallback? onActionTap;
-
-  const _SectionTitle({
-    required this.title,
-    this.actionLabel,
-    this.onActionTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          if (actionLabel != null)
-            GestureDetector(
-              onTap: onActionTap,
-              child: Text(
-                actionLabel!,
-                style: const TextStyle(
-                  fontSize: 13,
-                  color: AppColors.primaryRed,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Activity {
-  final String title;
-  final String date;
-  final String location;
-  final bool isLate;
-
-  const _Activity({
-    required this.title,
-    required this.date,
-    required this.location,
-    required this.isLate,
-  });
-}
-
-class _ActivityCard extends StatelessWidget {
-  final _Activity activity;
-  final VoidCallback onDetailTap;
-
-  const _ActivityCard({required this.activity, required this.onDetailTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final Color statusColor = activity.isLate
-        ? const Color(0xFFF57C00)
-        : const Color(0xFF388E3C);
-    final Color statusBg = activity.isLate
-        ? const Color(0xFFFFF3E0)
-        : const Color(0xFFE8F5E9);
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 10,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                activity.isLate
-                    ? Icons.warning_amber_rounded
-                    : Icons.check_circle,
-                color: statusColor,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      activity.title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      activity.date,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black54,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: statusBg,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  activity.isLate ? 'TERLAMBAT' : 'HADIR',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: statusColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'LOKASI',
-            style: TextStyle(fontSize: 10, color: Colors.black45),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            activity.location,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: onDetailTap,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryRed,
-                side: const BorderSide(color: AppColors.primaryRed),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: const Text('Lihat Detail'),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

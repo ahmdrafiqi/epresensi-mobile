@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:e_presensimobile/core/theme/app_colors.dart';
-import 'package:e_presensimobile/screens/karyawan/dashboard_karyawan.dart';
-import 'package:e_presensimobile/screens/manager/dashboard_manager.dart';
-import 'package:e_presensimobile/screens/pengawas/dashboard_pengawas.dart';
+import 'package:e_presensimobile/app/theme/app_colors.dart';
+import 'package:e_presensimobile/features/dashboard/views/dashboard_karyawan.dart';
+import 'package:e_presensimobile/features/dashboard/views/dashboard_manager.dart';
+import 'package:e_presensimobile/features/dashboard/views/dashboard_pengawas.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,7 +12,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    final username = _usernameController.text.trim();
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     const accounts = {
@@ -41,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
       'manager': {'password': '123', 'role': 'manager'},
     };
 
-    final account = accounts[username];
+    final account = accounts[email];
 
     if (account == null) {
       ScaffoldMessenger.of(context)
@@ -67,15 +67,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
     switch (role) {
       case 'karyawan':
-        destination = DashboardKaryawan(username: username, role: role);
+        destination = DashboardKaryawan(email: email, role: role);
         break;
 
       case 'manager':
-        destination = DashboardManager(username: username, role: role);
+        destination = DashboardManager(email: email, role: role);
         break;
 
       case 'pengawas':
-        destination = DashboardPengawas(username: username, role: role);
+        destination = DashboardPengawas(email: email, role: role);
         break;
 
       default:
@@ -131,16 +131,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   SizedBox(height: screenHeight * 0.08),
 
-                  // input username
+                  // input email
                   TextFormField(
-                    controller: _usernameController,
+                    controller: _emailController,
                     decoration: const InputDecoration(
-                      hintText: 'Username',
-                      prefixIcon: Icon(Icons.person),
+                      hintText: 'Email',
+                      prefixIcon: Icon(Icons.email),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Username wajib diisi';
+                        return 'Email wajib diisi';
                       }
                       return null;
                     },

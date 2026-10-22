@@ -1,4 +1,4 @@
-import 'package:e_presensimobile/core/theme/app_colors.dart';
+import 'package:e_presensimobile/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class StatCard extends StatelessWidget {

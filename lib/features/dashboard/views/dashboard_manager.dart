@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class DashboardManager extends StatefulWidget {
-  final String username;
+  final String email;
   final String role;
   const DashboardManager({
     super.key,
-    required this.username,
+    required this.email,
     required this.role,
   });
 
@@ -33,7 +33,7 @@ class _DashboardManagerState extends State<DashboardManager> {
       ),
       body: Center(
         child: Text(
-          'Selamat datang, ${widget.username}!\n'
+          'Selamat datang, ${widget.email}!\n'
           'Role: ${widget.role}',
           textAlign: TextAlign.center,
         ),

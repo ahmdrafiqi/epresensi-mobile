@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class DashboardPengawas extends StatefulWidget {
-  final String username;
+  final String email;
   final String role;
 
   const DashboardPengawas({
     super.key,
-    required this.username,
+    required this.email,
     required this.role,
   });
 
@@ -28,7 +28,7 @@ class _DashboardPengawasState extends State<DashboardPengawas> {
       ),
       body: Center(
         child: Text(
-          'Selamat datang, ${widget.username}!\n'
+          'Selamat datang, ${widget.email}!\n'
           'Role: ${widget.role}',
           textAlign: TextAlign.center,
         ),
