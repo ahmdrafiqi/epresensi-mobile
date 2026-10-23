@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) => DashboardKaryawan(
                 email: args['email'] as String,
+                name: args['name'] as String? ?? '',
                 role: args['role'] as String,
               ),
             );
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) => DashboardManager(
                 email: args['email'] as String,
+                name: args['name'] as String? ?? '',
                 role: args['role'] as String,
               ),
             );
@@ -55,6 +57,7 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
               builder: (context) => DashboardPengawas(
                 email: args['email'] as String,
+                name: args['name'] as String? ?? '',
                 role: args['role'] as String,
               ),
             );

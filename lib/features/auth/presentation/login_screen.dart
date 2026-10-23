@@ -1,22 +1,22 @@
-import 'package:flutter/material.dart';
 import 'package:e_presensimobile/app/theme/app_colors.dart';
-import 'package:e_presensimobile/features/dashboard/views/dashboard_karyawan.dart';
-import 'package:e_presensimobile/features/dashboard/views/dashboard_manager.dart';
-import 'package:e_presensimobile/features/dashboard/views/dashboard_pengawas.dart';
+import 'package:e_presensimobile/features/auth/data/auth_service.dart';
+import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final AuthService? authService;
+
+  const LoginScreen({super.key, this.authService});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
+  bool _isLoading = false;
   bool _obscurePassword = true;
   bool _rememberMe = false;
 
@@ -27,68 +27,67 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() {
-    if (!_formKey.currentState!.validate()) {
+  Future<void> _login() async {
+    if (_isLoading || !_formKey.currentState!.validate()) {
       return;
     }
 
-    final email = _emailController.text.trim();
-    final password = _passwordController.text;
+    setState(() => _isLoading = true);
 
-    const accounts = {
-      'karyawan': {'password': '123', 'role': 'karyawan'},
-      'pengawas': {'password': '123', 'role': 'pengawas'},
-      'manager': {'password': '123', 'role': 'manager'},
-    };
+    try {
+      final user = await (widget.authService ?? AuthService()).login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
 
-    final account = accounts[email];
+      if (!mounted) return;
 
-    if (account == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Akun tidak terdaftar')));
-      return;
-    }
-
-    if (account['password'] != password) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Password salah')));
-      return;
-    }
-
-    final role = account['role'];
-
-    if (role == null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Role tidak dikenali')));
-      return;
-    }
-
-    Widget destination;
-
-    switch (role) {
-      case 'karyawan':
-        destination = DashboardKaryawan(email: email, role: role);
-        break;
-
-      case 'manager':
-        destination = DashboardManager(email: email, role: role);
-        break;
-
-      case 'pengawas':
-        destination = DashboardPengawas(email: email, role: role);
-        break;
-
-      default:
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Role tidak dikenali')));
+      final routeName = _dashboardRouteFor(user.role);
+      if (routeName == null) {
+        _showMessage('Role akun tidak didukung: ${user.role}.');
         return;
-    }
+      }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => destination),
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        routeName,
+        (route) => false,
+        arguments: {
+          'id': user.id,
+          'name': user.name,
+          'email': user.email,
+          'role': user.role,
+        },
+      );
+    } on AuthException catch (error) {
+      if (mounted) {
+        _showMessage(error.message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  String? _dashboardRouteFor(String role) {
+    switch (role.trim().toLowerCase()) {
+      case 'karyawan':
+        return '/dashboard-karyawan';
+      case 'manager':
+        return '/dashboard-manager';
+      case 'pengawas':
+        return '/dashboard-pengawas';
+      default:
+        return null;
+    }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: AppColors.primaryNavy),
     );
-  } // Fungsi _login selesai di sini
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,22 +104,15 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // logo
                   Image.asset('assets/images/logo_pertamina.png', width: 245),
-
                   SizedBox(height: screenHeight * 0.08),
-                  
-                  // text
                   Text(
                     'Selamat Datang',
                     style: textTheme.headlineLarge?.copyWith(
                       color: AppColors.primaryNavy,
                     ),
                   ),
-
                   SizedBox(height: screenHeight * 0.01),
-
-                  //  text
                   Text(
                     'Silahkan masuk untuk melanjutkan ke aplikasi e-Presensi',
                     textAlign: TextAlign.center,
@@ -128,30 +120,37 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: AppColors.primaryNavy,
                     ),
                   ),
-
                   SizedBox(height: screenHeight * 0.08),
-
-                  // input email
                   TextFormField(
                     controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    autofillHints: const [AutofillHints.username],
+                    autocorrect: false,
                     decoration: const InputDecoration(
                       hintText: 'Email',
                       prefixIcon: Icon(Icons.email),
                     ),
                     validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
+                      final email = value?.trim() ?? '';
+                      if (email.isEmpty) {
                         return 'Email wajib diisi';
+                      }
+                      if (!email.contains('@') ||
+                          email.endsWith('@') ||
+                          email.startsWith('@')) {
+                        return 'Masukkan alamat email yang valid';
                       }
                       return null;
                     },
                   ),
-
                   SizedBox(height: screenHeight * 0.02),
-
-                  // input password
                   TextFormField(
                     controller: _passwordController,
                     obscureText: _obscurePassword,
+                    textInputAction: TextInputAction.done,
+                    autofillHints: const [AutofillHints.password],
+                    onFieldSubmitted: (_) => _login(),
                     decoration: InputDecoration(
                       hintText: 'Password',
                       prefixIcon: const Icon(Icons.lock),
@@ -161,11 +160,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               ? Icons.visibility_off
                               : Icons.visibility,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
+                        onPressed: () => setState(
+                          () => _obscurePassword = !_obscurePassword,
+                        ),
                       ),
                     ),
                     validator: (value) {
@@ -175,10 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-
                   SizedBox(height: screenHeight * 0.01),
-
-                  // lupa password dan ingat saya
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -186,11 +180,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Checkbox(
                             value: _rememberMe,
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberMe = value ?? false;
-                              });
-                            },
+                            onChanged: (value) =>
+                                setState(() => _rememberMe = value ?? false),
                           ),
                           Text(
                             'Ingat Saya',
@@ -201,27 +192,32 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                       TextButton(
-                        onPressed: () {
-                          // TODO: Navigasi lupa password
-                        },
+                        onPressed: () {},
                         child: const Text('Lupa Password?'),
                       ),
                     ],
                   ),
-
                   SizedBox(height: screenHeight * 0.05),
-
                   SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
-                      onPressed: _login,
-                      child: Text(
-                        'Login',
-                        style: textTheme.titleSmall?.copyWith(
-                          color: AppColors.whitePrimary,
-                        ),
-                      ),
+                      onPressed: _isLoading ? null : _login,
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.whitePrimary,
+                              ),
+                            )
+                          : Text(
+                              'Login',
+                              style: textTheme.titleSmall?.copyWith(
+                                color: AppColors.whitePrimary,
+                              ),
+                            ),
                     ),
                   ),
                 ],
