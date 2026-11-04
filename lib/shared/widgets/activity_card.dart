@@ -4,9 +4,13 @@ import 'activity.dart';
 
 class ActivityCard extends StatelessWidget {
   final Activity activity;
-  final VoidCallback onDetailTap;
+  final VoidCallback? onDetailTap;
 
-  const ActivityCard({required this.activity, required this.onDetailTap});
+  const ActivityCard({
+    super.key,
+    required this.activity,
+    this.onDetailTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -90,21 +94,23 @@ class ActivityCard extends StatelessWidget {
             activity.location,
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: onDetailTap,
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.primaryRed,
-                side: const BorderSide(color: AppColors.primaryRed),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          if (onDetailTap != null) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: onDetailTap,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primaryRed,
+                  side: const BorderSide(color: AppColors.primaryRed),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
+                child: const Text('Lihat Detail'),
               ),
-              child: const Text('Lihat Detail'),
             ),
-          ),
+          ],
         ],
       ),
     );

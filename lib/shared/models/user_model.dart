@@ -11,6 +11,13 @@ class UserModel {
     required this.role,
   });
 
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'name': name,
+    'email': email,
+    'role': role,
+  };
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     final rawId = json['id'];
     final id = rawId is int ? rawId : int.tryParse(rawId?.toString() ?? '');

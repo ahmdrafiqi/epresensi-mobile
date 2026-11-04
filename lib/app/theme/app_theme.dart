@@ -8,6 +8,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       scaffoldBackgroundColor: AppColors.background,
+      fontFamily: 'Inter',
 
       colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primaryRed),
 

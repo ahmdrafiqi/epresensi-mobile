@@ -1,8 +1,17 @@
 import 'package:e_presensimobile/app/theme/app_colors.dart';
+import 'package:e_presensimobile/app/router/app_router.dart';
+import 'package:e_presensimobile/features/attendance/views/attendance_page.dart';
+import 'package:e_presensimobile/features/auth/data/auth_service.dart';
 import 'package:e_presensimobile/features/dashboard/widgets/attendance_summary.dart';
 import 'package:e_presensimobile/features/dashboard/widgets/dashboard_header.dart';
+import 'package:e_presensimobile/features/dashboard/widgets/dashboard_navigation_bar.dart';
+import 'package:e_presensimobile/features/dashboard/widgets/dashboard_summary_backdrop.dart';
+import 'package:e_presensimobile/features/dashboard/widgets/lazy_dashboard_tab_stack.dart';
 import 'package:e_presensimobile/features/dashboard/widgets/quick_access_section.dart';
 import 'package:e_presensimobile/features/dashboard/widgets/recent_activity_section.dart';
+import 'package:e_presensimobile/features/history/views/history_page.dart';
+import 'package:e_presensimobile/features/profile/views/profile_page.dart';
+import 'package:e_presensimobile/features/requests/views/requests_page.dart';
 import 'package:e_presensimobile/shared/widgets/activity.dart';
 import 'package:flutter/material.dart';
 
@@ -24,6 +33,7 @@ class DashboardKaryawan extends StatefulWidget {
 
 class _DashboardKaryawanState extends State<DashboardKaryawan> {
   int _selectedIndex = 0;
+  bool _isLoggingOut = false;
 
   static const _activities = [
     Activity(
@@ -40,58 +50,81 @@ class _DashboardKaryawanState extends State<DashboardKaryawan> {
     ),
   ];
 
-  static const _bottomNavigationItems = [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home_outlined),
-      activeIcon: Icon(Icons.home),
-      label: 'Beranda',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.camera_alt_outlined),
-      activeIcon: Icon(Icons.camera_alt),
-      label: 'Presensi',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.description_outlined),
-      activeIcon: Icon(Icons.description),
-      label: 'Pengajuan',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.person_2_outlined),
-      activeIcon: Icon(Icons.person),
-      label: 'Profile',
-    ),
-  ];
+  Future<void> _logout() async {
+    if (_isLoggingOut) return;
+    setState(() => _isLoggingOut = true);
 
-  void _logout() {
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    String? warning;
+    try {
+      warning = await AuthService().logout();
+    } on AuthException catch (error) {
+      if (!mounted) return;
+      setState(() => _isLoggingOut = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.login,
+      (route) => false,
+    );
+    if (warning != null) {
+      messenger.showSnackBar(SnackBar(content: Text(warning)));
+    }
+  }
+
+  Widget _buildHomePage() {
+    return CustomScrollView(
+      slivers: [
+        DashboardHeader(
+          email: widget.email,
+          name: widget.name,
+          role: widget.role,
+        ),
+        const DashboardSummaryBackdrop(child: AttendanceSummary()),
+        QuickAccessSection(
+          onNavigateToAttendance: () =>
+              setState(() => _selectedIndex = 1),
+          onNavigateToRequests: () =>
+              setState(() => _selectedIndex = 2),
+        ),
+        RecentActivitySection(
+          activities: _activities,
+          onSeeAllTap: () => setState(() => _selectedIndex = 3),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView(
-        slivers: [
-          DashboardHeader(
+      body: LazyDashboardTabStack(
+        index: _selectedIndex,
+        cacheKey: (widget.email, widget.name, widget.role),
+        pageBuilders: [
+          (_) => _buildHomePage(),
+          (_) => const AttendancePage(),
+          (_) => const RequestsPage(),
+          (_) => const HistoryPage(),
+          (_) => ProfilePage(
             email: widget.email,
             name: widget.name,
             role: widget.role,
             onLogout: _logout,
           ),
-          const AttendanceSummary(),
-          const QuickAccessSection(),
-          const RecentActivitySection(activities: _activities),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
+      bottomNavigationBar: DashboardNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primaryRed,
-        backgroundColor: AppColors.whitePrimary,
-        unselectedItemColor: AppColors.whiteDisabled,
-        items: _bottomNavigationItems,
+        role: widget.role,
       ),
     );
   }

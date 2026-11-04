@@ -1,4 +1,5 @@
 import 'package:e_presensimobile/app/theme/app_theme.dart';
+import 'package:e_presensimobile/app/router/app_router.dart';
 import 'package:e_presensimobile/features/auth/presentation/login_screen.dart';
 import 'package:e_presensimobile/features/dashboard/views/dashboard_karyawan.dart';
 import 'package:e_presensimobile/features/dashboard/views/dashboard_manager.dart';
@@ -23,48 +24,82 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       home: const SplashScreen(),
 
-      routes: {'/login': (context) => const LoginScreen()},
-
       onGenerateRoute: (settings) {
-        final args = settings.arguments as Map<String, dynamic>?;
-
         switch (settings.name) {
-          case '/dashboard-karyawan':
-            if (args == null) break;
-
-            return MaterialPageRoute(
-              builder: (context) => DashboardKaryawan(
-                email: args['email'] as String,
-                name: args['name'] as String? ?? '',
-                role: args['role'] as String,
-              ),
+          case AppRoutes.login:
+            return MaterialPageRoute<void>(
+              settings: settings,
+              builder: (_) => const LoginScreen(),
             );
-
-          case '/dashboard-manager':
-            if (args == null) break;
-
-            return MaterialPageRoute(
-              builder: (context) => DashboardManager(
-                email: args['email'] as String,
-                name: args['name'] as String? ?? '',
-                role: args['role'] as String,
-              ),
-            );
-
-          case '/dashboard-pengawas':
-            if (args == null) break;
+          case AppRoutes.dashboardKaryawan:
+          case AppRoutes.dashboardManager:
+          case AppRoutes.dashboardPengawas:
+            final arguments = settings.arguments;
+            if (arguments is! DashboardRouteArgs) {
+              return MaterialPageRoute<void>(
+                settings: settings,
+                builder: (_) => const _InvalidRoutePage(),
+              );
+            }
 
             return MaterialPageRoute(
-              builder: (context) => DashboardPengawas(
-                email: args['email'] as String,
-                name: args['name'] as String? ?? '',
-                role: args['role'] as String,
-              ),
+              settings: settings,
+              builder: (context) {
+                final user = arguments.user;
+                return switch (settings.name) {
+                  AppRoutes.dashboardKaryawan => DashboardKaryawan(
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                  ),
+                  AppRoutes.dashboardManager => DashboardManager(
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                  ),
+                  AppRoutes.dashboardPengawas => DashboardPengawas(
+                    email: user.email,
+                    name: user.name,
+                    role: user.role,
+                  ),
+                  _ => const _InvalidRoutePage(),
+                };
+              },
             );
         }
 
         return null;
       },
+    );
+  }
+}
+
+class _InvalidRoutePage extends StatelessWidget {
+  const _InvalidRoutePage();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Data pengguna tidak valid. Silakan masuk kembali.'),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  AppRoutes.login,
+                  (_) => false,
+                ),
+                child: const Text('Ke halaman login'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

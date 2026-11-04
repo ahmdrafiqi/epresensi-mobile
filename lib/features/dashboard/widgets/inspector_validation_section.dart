@@ -60,22 +60,22 @@ class InspectorValidationSection extends StatelessWidget {
                 _ValidationMenuButton(
                   icon: Icons.pending_actions,
                   label: 'Validasi Lembur',
-                  onTap: () => _showMessage(context, 'Validasi lembur'),
+                  onTap: () => _showNotConnected(context),
                 ),
                 _ValidationMenuButton(
                   icon: Icons.flight_takeoff_outlined,
                   label: 'Validasi Dinas',
-                  onTap: () => _showMessage(context, 'Validasi dinas'),
+                  onTap: () => _showNotConnected(context),
                 ),
                 _ValidationMenuButton(
                   icon: Icons.calendar_month_outlined,
                   label: 'Approval Cuti',
-                  onTap: () => _showMessage(context, 'Approval cuti'),
+                  onTap: () => _showNotConnected(context),
                 ),
                 _ValidationMenuButton(
                   icon: Icons.verified_outlined,
                   label: 'Approval Izin',
-                  onTap: () => _showMessage(context, 'Approval izin'),
+                  onTap: () => _showNotConnected(context),
                 ),
               ],
             ),
@@ -85,7 +85,19 @@ class InspectorValidationSection extends StatelessWidget {
           child: SectionTitle(
             title: 'Pengajuan Terbaru',
             actionLabel: 'Lihat Semua',
-            onActionTap: () => _showMessage(context, 'Semua pengajuan terbaru'),
+            onActionTap: () => _showMessage(
+              context,
+              'Daftar pengajuan belum terhubung ke server.',
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(
+              'DATA CONTOH — bukan data server',
+              style: TextStyle(fontSize: 11, color: AppColors.primaryNavy),
+            ),
           ),
         ),
         SliverPadding(
@@ -102,6 +114,10 @@ class InspectorValidationSection extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  void _showNotConnected(BuildContext context) {
+    _showMessage(context, 'Validasi belum terhubung ke server.');
   }
 
   void _showRequestDetails(BuildContext context, DashboardRequest request) {

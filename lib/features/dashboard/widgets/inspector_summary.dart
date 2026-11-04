@@ -37,32 +37,36 @@ class InspectorSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Stack(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 64,
-            child: Container(color: AppColors.primaryRed),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: GridView.builder(
-              shrinkWrap: true,
-              padding: EdgeInsets.zero,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _metrics.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                childAspectRatio: 1.28,
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              'DATA CONTOH',
+              style: TextStyle(
+                color: AppColors.primaryNavy,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
               ),
-              itemBuilder: (context, index) =>
-                  _InspectorMetricCard(metric: _metrics[index]),
             ),
+          ),
+          GridView.builder(
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _metrics.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.28,
+            ),
+            itemBuilder: (context, index) =>
+                _InspectorMetricCard(metric: _metrics[index]),
           ),
         ],
       ),

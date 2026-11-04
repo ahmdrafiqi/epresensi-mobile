@@ -6,6 +6,7 @@ class QuickAccessButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const QuickAccessButton({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,

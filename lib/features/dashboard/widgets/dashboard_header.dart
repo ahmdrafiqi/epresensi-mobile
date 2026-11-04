@@ -5,14 +5,12 @@ class DashboardHeader extends StatelessWidget {
   final String email;
   final String name;
   final String role;
-  final VoidCallback onLogout;
 
   const DashboardHeader({
     super.key,
     required this.email,
     this.name = '',
     required this.role,
-    required this.onLogout,
   });
 
   @override
@@ -58,9 +56,16 @@ class DashboardHeader extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 16),
           child: IconButton(
-            onPressed: onLogout,
-            icon: const Icon(Icons.logout, color: AppColors.whitePrimary),
-            tooltip: 'Logout',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Notifikasi belum tersedia.')),
+              );
+            },
+            icon: const Icon(
+              Icons.notifications_none_outlined,
+              color: AppColors.whitePrimary,
+            ),
+            tooltip: 'Notifikasi',
           ),
         ),
       ],

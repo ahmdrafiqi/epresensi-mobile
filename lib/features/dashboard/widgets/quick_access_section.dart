@@ -3,7 +3,14 @@ import 'package:e_presensimobile/shared/widgets/section_title.dart';
 import 'package:flutter/material.dart';
 
 class QuickAccessSection extends StatelessWidget {
-  const QuickAccessSection({super.key});
+  final VoidCallback onNavigateToAttendance;
+  final VoidCallback onNavigateToRequests;
+
+  const QuickAccessSection({
+    super.key,
+    required this.onNavigateToAttendance,
+    required this.onNavigateToRequests,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,22 +32,22 @@ class QuickAccessSection extends StatelessWidget {
                 QuickAccessButton(
                   icon: Icons.login,
                   label: 'Absen\nMasuk',
-                  onTap: () {},
+                  onTap: onNavigateToAttendance,
                 ),
                 QuickAccessButton(
                   icon: Icons.logout,
                   label: 'Absen\nPulang',
-                  onTap: () {},
+                  onTap: onNavigateToAttendance,
                 ),
                 QuickAccessButton(
                   icon: Icons.event_note_outlined,
                   label: 'Ajukan\nCuti',
-                  onTap: () {},
+                  onTap: onNavigateToRequests,
                 ),
                 QuickAccessButton(
                   icon: Icons.more_time,
                   label: 'Ajukan\nLembur',
-                  onTap: () {},
+                  onTap: onNavigateToRequests,
                 ),
               ],
             ),

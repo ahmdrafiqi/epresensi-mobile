@@ -8,6 +8,7 @@ class SectionTitle extends StatelessWidget {
   final VoidCallback? onActionTap;
 
   const SectionTitle({
+    super.key,
     required this.title,
     this.actionLabel,
     this.onActionTap,

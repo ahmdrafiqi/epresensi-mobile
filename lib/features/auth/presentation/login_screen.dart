@@ -1,4 +1,5 @@
 import 'package:e_presensimobile/app/theme/app_colors.dart';
+import 'package:e_presensimobile/app/router/app_router.dart';
 import 'package:e_presensimobile/features/auth/data/auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -15,16 +16,37 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  late final AuthService _authService = widget.authService ?? AuthService();
 
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _rememberMe = false;
+  bool _emailWasEdited = false;
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberedEmail();
+  }
+
+  Future<void> _loadRememberedEmail() async {
+    try {
+      final email = await _authService.readRememberedEmail();
+      if (!mounted || _emailWasEdited || email == null) return;
+      setState(() {
+        _emailController.text = email;
+        _rememberMe = true;
+      });
+    } on AuthException catch (error) {
+      if (mounted) _showMessage(error.message);
+    }
   }
 
   Future<void> _login() async {
@@ -35,29 +57,39 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final user = await (widget.authService ?? AuthService()).login(
+      final session = await _authService.login(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
 
       if (!mounted) return;
 
-      final routeName = _dashboardRouteFor(user.role);
+      final routeName = AppRoutes.dashboardForRole(session.user.role);
       if (routeName == null) {
-        _showMessage('Role akun tidak didukung: ${user.role}.');
+        _showMessage('Role akun tidak didukung: ${session.user.role}.');
         return;
       }
 
+      if (session.token == null) {
+        _showMessage('Server tidak mengembalikan token autentikasi.');
+        return;
+      }
+
+      await _authService.saveSession(session);
+      try {
+        await _authService.saveRememberedEmail(
+          _rememberMe ? _emailController.text : null,
+        );
+      } on AuthException catch (error) {
+        _showMessage(error.message);
+      }
+
+      if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(
         context,
         routeName,
         (route) => false,
-        arguments: {
-          'id': user.id,
-          'name': user.name,
-          'email': user.email,
-          'role': user.role,
-        },
+        arguments: DashboardRouteArgs(user: session.user),
       );
     } on AuthException catch (error) {
       if (mounted) {
@@ -67,19 +99,6 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
       }
-    }
-  }
-
-  String? _dashboardRouteFor(String role) {
-    switch (role.trim().toLowerCase()) {
-      case 'karyawan':
-        return '/dashboard-karyawan';
-      case 'manager':
-        return '/dashboard-manager';
-      case 'pengawas':
-        return '/dashboard-pengawas';
-      default:
-        return null;
     }
   }
 
@@ -123,6 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: screenHeight * 0.08),
                   TextFormField(
                     controller: _emailController,
+                    onChanged: (_) => _emailWasEdited = true,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
                     autofillHints: const [AutofillHints.username],
@@ -192,8 +212,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         ],
                       ),
                       TextButton(
-                        onPressed: () {},
-                        child: const Text('Lupa Password?'),
+                        onPressed: _showForgotPasswordUnavailable,
+                        child: Text(
+                          'Lupa Password?',
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: AppColors.primaryRed,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -225,6 +250,24 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _showForgotPasswordUnavailable() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Lupa Password'),
+        content: const Text(
+          'Pemulihan password belum tersedia. Hubungi administrator.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Tutup'),
+          ),
+        ],
       ),
     );
   }

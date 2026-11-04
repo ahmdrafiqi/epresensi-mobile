@@ -5,8 +5,13 @@ import 'package:flutter/material.dart';
 
 class RecentActivitySection extends StatelessWidget {
   final List<Activity> activities;
+  final VoidCallback onSeeAllTap;
 
-  const RecentActivitySection({super.key, required this.activities});
+  const RecentActivitySection({
+    super.key,
+    required this.activities,
+    required this.onSeeAllTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +21,16 @@ class RecentActivitySection extends StatelessWidget {
           child: SectionTitle(
             title: 'Aktivitas Terbaru',
             actionLabel: 'Lihat Semua',
-            onActionTap: () {},
+            onActionTap: onSeeAllTap,
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(
+              'DATA CONTOH',
+              style: TextStyle(fontSize: 11, color: Color(0xFF757575)),
+            ),
           ),
         ),
         SliverPadding(
@@ -25,7 +39,7 @@ class RecentActivitySection extends StatelessWidget {
             itemCount: activities.length,
             separatorBuilder: (_, _) => const SizedBox(height: 12),
             itemBuilder: (context, index) =>
-                ActivityCard(activity: activities[index], onDetailTap: () {}),
+                ActivityCard(activity: activities[index]),
           ),
         ),
       ],

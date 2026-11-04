@@ -57,12 +57,18 @@ class ManagerApprovalSection extends StatelessWidget {
                 ),
                 _QuickActionButton(
                   label: 'Approve Cuti',
-                  onTap: () => _showMessage(context, 'Daftar approval cuti'),
+                  onTap: () => _showMessage(
+                    context,
+                    'Approval belum terhubung ke server; data contoh.',
+                  ),
                 ),
                 const SizedBox(width: 12),
                 _QuickActionButton(
                   label: 'Approve Izin',
-                  onTap: () => _showMessage(context, 'Daftar approval izin'),
+                  onTap: () => _showMessage(
+                    context,
+                    'Approval belum terhubung ke server; data contoh.',
+                  ),
                 ),
               ],
             ),
@@ -72,7 +78,19 @@ class ManagerApprovalSection extends StatelessWidget {
           child: SectionTitle(
             title: 'Daftar Menunggu Persetujuan',
             actionLabel: 'Lihat Semua',
-            onActionTap: () => _showMessage(context, 'Semua pengajuan'),
+            onActionTap: () => _showMessage(
+              context,
+              'Daftar pengajuan belum terhubung ke server.',
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+            child: Text(
+              'DATA CONTOH — bukan data server',
+              style: TextStyle(fontSize: 11, color: AppColors.primaryNavy),
+            ),
           ),
         ),
         SliverPadding(
@@ -86,7 +104,7 @@ class ManagerApprovalSection extends StatelessWidget {
               onDetailTap: () => _showRequestDetails(context, _requests[index]),
               onApproveTap: () => _showMessage(
                 context,
-                'Pengajuan ${_requests[index].employeeName} disetujui',
+                'Pengajuan belum diubah. Approval belum terhubung ke server.',
               ),
             ),
           ),

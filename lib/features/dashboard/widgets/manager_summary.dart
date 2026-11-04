@@ -6,40 +6,44 @@ class ManagerSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Stack(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 64,
-            child: Container(color: AppColors.primaryRed),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Expanded(
-                  child: _ManagerMetricCard(
-                    icon: Icons.pending_actions,
-                    iconColor: AppColors.primaryRed,
-                    label: 'Final Approval Menunggu',
-                    value: '12',
-                  ),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: _ManagerMetricCard(
-                    icon: Icons.check_circle_outline,
-                    iconColor: Color(0xFF07516B),
-                    label: 'Disetujui Hari Ini',
-                    value: '8',
-                  ),
-                ),
-              ],
+          const Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              'DATA CONTOH',
+              style: TextStyle(
+                color: AppColors.primaryNavy,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1,
+              ),
             ),
+          ),
+          const Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _ManagerMetricCard(
+                  icon: Icons.pending_actions,
+                  iconColor: AppColors.primaryRed,
+                  label: 'Final Approval Menunggu',
+                  value: '12',
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: _ManagerMetricCard(
+                  icon: Icons.check_circle_outline,
+                  iconColor: Color(0xFF07516B),
+                  label: 'Disetujui Hari Ini',
+                  value: '8',
+                ),
+              ),
+            ],
           ),
         ],
       ),
